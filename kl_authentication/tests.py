@@ -1,0 +1,3 @@
+"""
+Authentication class tests
+"""

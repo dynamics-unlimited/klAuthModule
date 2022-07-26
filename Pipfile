@@ -9,6 +9,7 @@ django-extensions = "~=3.1"
 djangorestframework = "~=3.13"
 drf-spectacular = "~=0.22"
 requests = "~=2.27.0"
+djangorestframework-simplejwt = ">=5.0"
 
 [dev-packages]
 

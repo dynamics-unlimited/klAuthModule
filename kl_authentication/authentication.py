@@ -81,6 +81,7 @@ class KairnialTokenAuthentication(JWTAuthentication):
             return user, token
         try:
             user = self._get_token_user(request=request, token=token)
+            request.user_id = user.uuid
             return user, token
         except jwt.ExpiredSignatureError:
             logger.error("Token expired")

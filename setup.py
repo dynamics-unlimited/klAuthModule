@@ -56,7 +56,7 @@ def get_version(app):
     return version
 
 
-module = 'kl_auth_module'
+module = 'kl_authentication'
 
 setup(
     name='kl-auth-module',

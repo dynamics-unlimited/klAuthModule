@@ -1,6 +1,9 @@
+"""
+OpenAPI extensions
+"""
+from django.conf import settings
 from drf_spectacular.extensions import OpenApiAuthenticationExtension
 from drf_spectacular.plumbing import build_bearer_security_scheme_object
-from django.conf import settings
 
 
 class TokenScheme(OpenApiAuthenticationExtension):

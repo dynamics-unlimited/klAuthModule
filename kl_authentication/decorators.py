@@ -3,8 +3,8 @@ import functools
 from rest_framework import status
 from rest_framework.response import Response
 
-from .services import KairnialAuthServiceError
 from . import JSON_CONTENT_TYPE
+from .services import KairnialAuthServiceError
 
 
 def handle_auth_ws_error(f):

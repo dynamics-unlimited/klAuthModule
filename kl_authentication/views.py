@@ -10,13 +10,12 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from . import JSON_CONTENT_TYPE
+from .decorators import handle_auth_ws_error
+from .serializers import AuthServiceErrorSerializer
 from .serializers import ClientlessPasswordAuthenticationSerializer, \
     AuthResponseSerializer, ClientlessAPIKeyAuthenticationSerializer, \
     ClientlessRefreshTokenAuthenticationSerializer
 from .services import KairnialAuthentication
-from .decorators import handle_auth_ws_error
-from .serializers import AuthServiceErrorSerializer
-
 
 default_client_example = OpenApiExample(
     name='Default clientID',
@@ -37,6 +36,7 @@ client_parameters = [
                      description=_("A user identifier to be paired with the M2M token"),
                      required=False, examples=[default_app_user_id_example])
 ]
+
 
 class ClientlessPasswordAuthenticationView(APIView):
     """

@@ -24,7 +24,6 @@ class KairnialAuthMiddleware(object):
         # GET TOKEN
         logger = logging.getLogger('authentication')
         try:
-            logger.debug("adding token and user attributes to request")
             request.token = request.META.get('HTTP_AUTHORIZATION').split()[1]
             request.user_id = request.META.get('HTTP_X_APP_USER_ID')
         except (AttributeError, IndexError) as e:

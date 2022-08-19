@@ -3,6 +3,7 @@
 from __future__ import unicode_literals
 
 import logging
+import uuid
 
 import jwt
 from django.conf import settings
@@ -12,6 +13,7 @@ from rest_framework_simplejwt.authentication import JWTAuthentication
 KAIRNIAL_AUTH_DOMAIN = settings.KAIRNIAL_AUTH_DOMAIN
 KAIRNIAL_AUTH_PUBLIC_KEY = settings.KAIRNIAL_AUTH_PUBLIC_KEY
 ALGORITHMS = ["RS256"]
+
 
 
 class KairnialTokenAuthentication(JWTAuthentication):
@@ -68,6 +70,15 @@ class KairnialTokenAuthentication(JWTAuthentication):
         supplied using JWT-based authentication, otherwise, returns `None`.
         """
         logger = logging.getLogger('authentication')
+        if getattr(settings, 'TEST_RUN', False):
+            user = get_user_model()(
+                first_name="Test",
+                last_name="User",
+                email="test@user.com"
+            )
+            user.uuid = settings.TEST_USER_ID
+            token = str(uuid.uuid4())
+            return user, str(token)
         try:
             token = request.META.get('HTTP_AUTHORIZATION').split()[1]
             if token is None:

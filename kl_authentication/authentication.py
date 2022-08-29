@@ -5,6 +5,7 @@ from __future__ import unicode_literals
 import logging
 
 import jwt
+import urllib
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from rest_framework_simplejwt.authentication import JWTAuthentication
@@ -14,15 +15,9 @@ KAIRNIAL_AUTH_PUBLIC_KEY = settings.KAIRNIAL_AUTH_PUBLIC_KEY
 ALGORITHMS = ["RS256"]
 
 
-class KairnialTokenAuthentication(JWTAuthentication):
+class TokenAthentication(JWTAuthentication):
     """
     Token based authentication using the JSON Web Token standard.
-
-    Clients should authenticate by passing the token key in the "Authorization"
-    HTTP header, prepended with the string specified in the setting
-    `JWT_AUTH_HEADER_PREFIX`. For example:
-
-        Authorization: Bearer eyJhbGciOiAiSFMyNTYiLCAidHlwIj
     """
 
     def _get_m2m_user(self, request):
@@ -62,20 +57,14 @@ class KairnialTokenAuthentication(JWTAuthentication):
         user.uuid = uuid
         return user
 
-    def authenticate(self, request):
+    def _get_user(self, request, token):
         """
-        Returns a two-tuple of `User` and token if a valid signature has been
-        supplied using JWT-based authentication, otherwise, returns `None`.
+        Get user information from token or request
+        :param request:
+        :param token:
+        :return:
         """
         logger = logging.getLogger('authentication')
-        try:
-            token = request.META.get('HTTP_AUTHORIZATION').split()[1]
-            if token is None:
-                logger.error('Authorization header not found')
-                return None
-        except (AttributeError, IndexError):
-            logger.error('Malformed authentication header')
-            return None
         user = self._get_m2m_user(request=request)
         if user:
             request.user = user
@@ -96,3 +85,50 @@ class KairnialTokenAuthentication(JWTAuthentication):
         except Exception as e:
             logger.error(f"Unable to parse authentication {str(e)}")
             return None
+
+
+class KairnialTokenAuthentication(TokenAthentication):
+    """
+    Clients should authenticate by passing the token key in the "Authorization"
+    HTTP header, prepended with the string specified in the setting
+    `JWT_AUTH_HEADER_PREFIX`. For example:
+        Authorization: Bearer eyJhbGciOiAiSFMyNTYiLCAidHlwIj
+    """
+    def authenticate(self, request):
+        """
+        Returns a two-tuple of `User` and token if a valid signature has been
+        supplied using JWT-based authentication, otherwise, returns `None`.
+        """
+        logger = logging.getLogger('authentication')
+        try:
+            token = request.META.get('HTTP_AUTHORIZATION').split()[1]
+            if token is None:
+                logger.error('Authorization header not found')
+                return None
+        except (AttributeError, IndexError):
+            logger.error('Malformed authentication header')
+            return None
+        return self._get_user(request=request, token=token)
+
+
+class KairnialCookieAuthentication(TokenAthentication):
+    """
+    Clients should authenticate by passing the access_token cookie with url encoded jwt
+    """
+
+    def authenticate(self, request):
+        """
+        Returns a two-tuple of `User` and token if a valid signature has been
+        supplied using JWT-based authentication, otherwise, returns `None`.
+        """
+        logger = logging.getLogger('authentication')
+        try:
+            cookie = request.COOKIES.get('access_token')
+            token = urllib.parse.unquote(cookie).strip('"')
+            if token is None:
+                logger.error('access_token cookie not found')
+                return None
+        except (AttributeError, IndexError):
+            logger.error('Malformed access_token cookie')
+            return None
+        return self._get_user(request=request, token=token)

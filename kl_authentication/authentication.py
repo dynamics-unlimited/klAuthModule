@@ -124,6 +124,9 @@ class KairnialCookieAuthentication(TokenAthentication):
         logger = logging.getLogger('authentication')
         try:
             cookie = request.COOKIES.get('access_token')
+            if cookie is None:
+                logger.error('access_token cookie not found')
+                return None
             token = urllib.parse.unquote(cookie).strip('"')
             if token is None:
                 logger.error('access_token cookie not found')

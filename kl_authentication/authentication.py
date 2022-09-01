@@ -6,6 +6,7 @@ import logging
 import uuid
 
 import jwt
+import urllib
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from rest_framework_simplejwt.authentication import JWTAuthentication
@@ -15,16 +16,9 @@ KAIRNIAL_AUTH_PUBLIC_KEY = settings.KAIRNIAL_AUTH_PUBLIC_KEY
 ALGORITHMS = ["RS256"]
 
 
-
-class KairnialTokenAuthentication(JWTAuthentication):
+class TokenAthentication(JWTAuthentication):
     """
     Token based authentication using the JSON Web Token standard.
-
-    Clients should authenticate by passing the token key in the "Authorization"
-    HTTP header, prepended with the string specified in the setting
-    `JWT_AUTH_HEADER_PREFIX`. For example:
-
-        Authorization: Bearer eyJhbGciOiAiSFMyNTYiLCAidHlwIj
     """
 
     def _get_m2m_user(self, request):
@@ -64,6 +58,44 @@ class KairnialTokenAuthentication(JWTAuthentication):
         user.uuid = uuid
         return user
 
+    def _get_user(self, request, token):
+        """
+        Get user information from token or request
+        :param request:
+        :param token:
+        :return:
+        """
+        logger = logging.getLogger('authentication')
+        user = self._get_m2m_user(request=request)
+        if user:
+            request.user = user
+            return user, token
+        try:
+            user = self._get_token_user(request=request, token=token)
+            request.user = user
+            return user, token
+        except jwt.ExpiredSignatureError:
+            logger.error("Token expired")
+            return None
+        except (jwt.InvalidIssuerError, jwt.InvalidAudienceError):
+            logger.error("incorrect claims, please check the audience and issuer")
+            return None
+        except AttributeError:
+            logger.error("Unable to get client_id")
+            return None
+        except Exception as e:
+            logger.error(f"Unable to parse authentication {str(e)}")
+            return None
+
+
+class KairnialTokenAuthentication(TokenAthentication):
+    """
+    Clients should authenticate by passing the token key in the "Authorization"
+    HTTP header, prepended with the string specified in the setting
+    `JWT_AUTH_HEADER_PREFIX`. For example:
+        Authorization: Bearer eyJhbGciOiAiSFMyNTYiLCAidHlwIj
+    """
+
     def authenticate(self, request):
         """
         Returns a two-tuple of `User` and token if a valid signature has been
@@ -87,22 +119,30 @@ class KairnialTokenAuthentication(JWTAuthentication):
         except (AttributeError, IndexError):
             logger.error('Malformed authentication header')
             return None
-        user = self._get_m2m_user(request=request)
-        if user:
-            return user, token
+        return self._get_user(request=request, token=token)
+
+
+class KairnialCookieAuthentication(TokenAthentication):
+    """
+    Clients should authenticate by passing the access_token cookie with url encoded jwt
+    """
+
+    def authenticate(self, request):
+        """
+        Returns a two-tuple of `User` and token if a valid signature has been
+        supplied using JWT-based authentication, otherwise, returns `None`.
+        """
+        logger = logging.getLogger('authentication')
         try:
-            user = self._get_token_user(request=request, token=token)
-            request.user_id = user.uuid
-            return user, token
-        except jwt.ExpiredSignatureError:
-            logger.error("Token expired")
+            cookie = request.COOKIES.get('access_token')
+            if cookie is None:
+                logger.error('access_token cookie not found')
+                return None
+            token = urllib.parse.unquote(cookie).strip('"')
+            if token is None:
+                logger.error('access_token cookie not found')
+                return None
+        except (AttributeError, IndexError):
+            logger.error('Malformed access_token cookie')
             return None
-        except (jwt.InvalidIssuerError, jwt.InvalidAudienceError):
-            logger.error("incorrect claims, please check the audience and issuer")
-            return None
-        except AttributeError:
-            logger.error("Unable to get client_id")
-            return None
-        except Exception as e:
-            logger.error(f"Unable to parse authentication {str(e)}")
-            return None
+        return self._get_user(request=request, token=token)

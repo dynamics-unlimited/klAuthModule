@@ -68,6 +68,7 @@ class KairnialTokenAuthentication(JWTAuthentication):
         supplied using JWT-based authentication, otherwise, returns `None`.
         """
         logger = logging.getLogger('authentication')
+        logger.debug(f"Authenticating user with token {request.META.get('HTTP_AUTHORIZATION')}")
         try:
             token = request.META.get('HTTP_AUTHORIZATION').split()[1]
             if token is None:

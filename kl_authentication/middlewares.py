@@ -2,11 +2,12 @@
 Kairnial authentication middleware
 """
 import logging
+import urllib
 
 from django.contrib.auth import authenticate
 
 
-class KairnialAuthMiddleware(object):
+class KairnialTokenAuthMiddleware(object):
     """
     Check the jwt token passed by the request
     """
@@ -21,12 +22,41 @@ class KairnialAuthMiddleware(object):
         return username
 
     def __call__(self, request):
-        # GET TOKEN
+        # Get TOKEN from header
         logger = logging.getLogger('authentication')
         try:
-            logger.debug("adding token and user attributes to request")
+            logger.debug("Adding header token to request")
             request.token = request.META.get('HTTP_AUTHORIZATION').split()[1]
             request.user_id = request.META.get('HTTP_X_APP_USER_ID')
+        except (AttributeError, IndexError) as e:
+            logger.warning(str(e))
+            pass
+        response = self.get_response(request)
+        return response
+
+    @staticmethod
+    def process_view(request, view_func, view_args, view_kwargs):
+        client_id = view_kwargs.get('client_id', None)
+        if client_id:
+            request.client_id = client_id
+
+
+class KairnialCookieAuthMiddleware(object):
+    """
+    Check the jwt token passed by the request
+    """
+
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        # Get TOKEN from cookie
+        logger = logging.getLogger('authentication')
+        try:
+            logger.debug("Adding cookie token to request")
+            cookie = request.COOKIES.get('access_token')
+            if cookie:
+                request.token = urllib.parse.unquote(cookie).strip('"')
         except (AttributeError, IndexError) as e:
             logger.warning(str(e))
             pass

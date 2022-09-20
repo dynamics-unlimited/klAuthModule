@@ -58,7 +58,7 @@ class ClientlessPasswordAuthenticationView(APIView):
         if serializer.is_valid():
             ka = KairnialAuthentication(client_id=client_id)
             auth_response = ka.password_authentication(
-                username=serializer.validated_data.get('username'),
+                username=serializer.validated_data.get('email'),
                 password=serializer.validated_data.get('password'))
             resp_serializer = AuthResponseSerializer(auth_response)
             return Response(resp_serializer.data, status=status.HTTP_200_OK)

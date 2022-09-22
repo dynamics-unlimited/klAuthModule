@@ -69,11 +69,11 @@ setup(
     long_description_content_type="text/markdown",
     url='https://apiv3.kairnial.com/',
     install_requires=[
-        "Django>=4.0",
-        "django-extensions~=3.1",
-        "djangorestframework~=3.13",
-        "drf-spectacular~=0.22",
-        "requests~=2.27.0"
+        "Django>=4.1",
+        "django-extensions~=3.2",
+        "djangorestframework~=3.14",
+        "drf-spectacular~=0.24",
+        "requests~=2.28.0",
     ],
     packages=find_packages(),
     include_package_data=True,

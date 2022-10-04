@@ -24,6 +24,8 @@ class KairnialTokenAuthMiddleware(object):
     def __call__(self, request):
         # Get TOKEN from header
         logger = logging.getLogger('authentication')
+        request.token = None
+        request.user_id = None
         try:
             logger.debug("Adding header token to request")
             request.token = request.META.get('HTTP_AUTHORIZATION').split()[1]
@@ -52,6 +54,8 @@ class KairnialCookieAuthMiddleware(object):
     def __call__(self, request):
         # Get TOKEN from cookie
         logger = logging.getLogger('authentication')
+        request.token = None
+        request.user_id = None
         try:
             logger.debug("Adding cookie token to request")
             cookie = request.COOKIES.get('access_token')

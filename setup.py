@@ -71,9 +71,9 @@ setup(
     install_requires=[
         "Django>=4.1",
         "django-extensions~=3.2",
-        "djangorestframework~=3.14",
+        "djangorestframework~=3.13.0",
         "drf-spectacular~=0.24",
-        "requests~=2.28.0",
+        "requests~=2.27.0",
     ],
     packages=find_packages(),
     include_package_data=True,

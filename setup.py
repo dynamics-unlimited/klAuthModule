@@ -70,7 +70,6 @@ setup(
     url='https://apiv3.kairnial.com/',
     install_requires=[
         "Django>=4.1",
-        "django-extensions~=3.2",
         "djangorestframework~=3.14.0",
         "drf-spectacular~=0.24.2",
         "requests~=2.28.0",

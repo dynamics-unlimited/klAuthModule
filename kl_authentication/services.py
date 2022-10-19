@@ -14,7 +14,7 @@ from .serializers import AuthServiceErrorSerializer
 
 PASSWORD_LOGIN_PATH = '/api/oauth2/login'
 API_AUTHENT_PATH = '/api/oauth2/client_credentials/{clientID}'
-
+MESSAGE_INVALID_RESPONSE = "Invalid response from server"
 
 class KairnialAuthServiceError(Exception):
     _message = _("Error fetching data from Kairnial WebServices")
@@ -82,7 +82,7 @@ class KairnialAuthentication:
             return resp
         except json.JSONDecodeError:
             raise KairnialAuthServiceError(
-                message="Invalid response from server",
+                message=MESSAGE_INVALID_RESPONSE,
                 status=400
             )
 
@@ -130,7 +130,7 @@ class KairnialAuthentication:
             return resp
         except json.JSONDecodeError:
             raise KairnialAuthServiceError(
-                message="Invalid response from server",
+                message=MESSAGE_INVALID_RESPONSE,
                 status=400
             )
 
@@ -177,7 +177,7 @@ class KairnialAuthentication:
             return resp
         except json.JSONDecodeError:
             raise KairnialAuthServiceError(
-                message="Invalid response from server",
+                message=MESSAGE_INVALID_RESPONSE,
                 status=400
             )
 

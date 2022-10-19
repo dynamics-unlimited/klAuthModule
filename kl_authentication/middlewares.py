@@ -47,7 +47,6 @@ class KairnialTokenAuthMiddleware(object):
             logger.debug(f"set user_id on request: {request.user_id}")
         except (AttributeError, IndexError) as e:
             logger.warning(str(e))
-            pass
         response = self.get_response(request)
         return response
 
@@ -78,7 +77,6 @@ class KairnialCookieAuthMiddleware(object):
                 request.user_id = None # user_id should not be set if cookie is involved
         except (AttributeError, IndexError) as e:
             logger.warning(str(e))
-            pass
         response = self.get_response(request)
         return response
 

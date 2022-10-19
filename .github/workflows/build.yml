@@ -2,7 +2,7 @@ name: Build
 on:
   push:
     branches:
-      - develop # or the name of your main branch
+      - preprod # or the name of your main branch
 jobs:
   build:
     name: Build

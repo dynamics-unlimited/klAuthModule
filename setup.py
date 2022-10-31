@@ -24,7 +24,7 @@ def get_version(app):
             ["git", "rev-parse", "--abbrev-ref", "HEAD"]
         ).rstrip().decode('utf8')
         git_describe = subprocess.check_output(
-            ["git", "describe", "--long", "tags"]
+            ["git", "describe", "--long", "--tags"]
         ).rstrip().decode('utf8')
         if 'fatal' not in git_describe:
             git_tag = git_describe.split('-')[0]
@@ -32,7 +32,7 @@ def get_version(app):
         else:
             git_tag = branch
             git_commits = -1
-        if branch == 'master':
+        if branch in ['master', 'preprod']:
             suffix = ''
         else:
             suffix = 'dev'
